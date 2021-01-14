@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.0.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.0.0/mapbox-gl.css' rel='stylesheet' />
+    
+</head>
+<body>
+    <div id='map' style='width: 1000px; height: 500px;'></div>
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoibmF2Y29nLXZ2ayIsImEiOiJjazVlcWJ5cmcxbThrM21yd28zd3MzcGp0In0.XNc9MK0b_dsLYXyEMscbhg';
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/navcog-vvk/ckjhj2ujt26ty19qixh0lc0hw', // stylesheet location
+            // style: 'mapbox://styles/mapbox/streets-v11',     //default
+            zoom: 7.92,
+            bearing: 0,
+            pitch: 0,
+            center: [-106.291398, 30.743204], // [lng, lat]
+
+        });
+
+
+        var isThere = true;
+        var happy = 0;
+        var mylist = [];
+        var draw = 0;
+
+
+        
+        mylist = [
+                            [-106.291398, 30.743204],
+                            [-105.291398, 30.543204],
+                    ];
+
+        
+
+        firstNode = [
+                        -106.291398,
+                        30.743204
+                    ];
+        secondNode = [
+                        -105.291398,
+                        30.543204
+                    ];
+        
+        everything = [];
+        everything.push([-103.291398,
+                            30.743204]);
+        map.on('load', event => {
+            map.addSource('nodes', {
+                type: 'geojson',
+                // data: test
+                data: {
+                    "type": "FeatureCollection",
+                    "features": [
+                        {
+                            "type": "Feature",
+                            "properties": {},
+                            "geometry": {
+                                "type": "Point",
+                                // "coordinates": firstNode
+                                "coordinates": everything[0]
+                            }
+                        },
+                        {
+                            "type": "Feature",
+                            "properties": {},
+                            "geometry": {
+                                "type": "Point",
+                                "coordinates": secondNode
+                            }
+                        }
+                    ]
+                }
+            });
+        });
+
+
+        map.on('click', event => {
+
+            if (isThere == true){
+
+                if (happy == 1){
+                    map.removeLayer('points');
+                    happy = 0;
+                    console.log('aaa happy is 1')
+                }
+                
+                const lng = event.lngLat.lng;
+                const lat = event.lngLat.lat;
+                console.log(happy);
+                draw = 1;
+
+
+                //******************************************************************************
+                //NODES
+                secondNode = [
+                                -105.291398,
+                                30.543204
+                            ];
+                
+                everything = [-103.291398,
+                            30.743204];
+
+                features = [
+                            {
+                                "type": "Feature",
+                                "properties": {},
+                                "geometry": {
+                                    "type": "Point",
+                                    // "coordinates": firstNode
+                                    "coordinates": everything[0]
+                                }
+                            }];
+                            
+                features.push(
+                            {
+                                "type": "Feature",
+                                "properties": {},
+                                "geometry": {
+                                    "type": "Point",
+                                    "coordinates": secondNode
+                                }
+                            }
+                );
+
+                mydata = {
+                        "type": "FeatureCollection",
+                        "features": features
+                    };
+
+                map.getSource('nodes').setData(mydata);
+
+                map.addLayer({
+                    id: 'points',
+                    source: 'nodes',
+                    type: 'circle',
+                    paint: {
+                        'circle-radius': 10,
+                        'circle-color': 'red'
+                    }
+
+                });
+
+                isThere = false;
+            }else{
+                console.log('biuu');
+                isThere = true;
+                happy = 1;
+                map.removeLayer('points');
+
+                console.log('removed');
+
+                secondNode = [
+                        -105.591398,
+                        30.743204
+                ];
+
+                mydata = {
+                        "type": "FeatureCollection",
+                        "features": [
+                            {
+                                "type": "Feature",
+                                "properties": {},
+                                "geometry": {
+                                    "type": "Point",
+                                    "coordinates": secondNode
+                                }
+                            }
+                        ]
+                    };
+
+
+                map.getSource('nodes').setData(mydata);
+
+                map.addLayer({
+                    id: 'points',
+                    source: 'nodes',
+                    type: 'circle',
+                    paint: {
+                        'circle-radius': 10,
+                        'circle-color': 'red'
+                    }
+
+                });
+
+            };
+
+
+        });
+
+
+        // isThere = false;
+
+
+        // map.off('click', event => {
+        //     console.log('biuu');
+        // });
+
+    </script>
+    
+</body>
+</html>
