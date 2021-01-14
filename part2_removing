@@ -23,25 +23,9 @@
 
         });
 
-
         var isThere = true;
         var happy = 0;
-        var mylist = [];
-        var draw = 0;
 
-
-        
-        mylist = [
-                            [-106.291398, 30.743204],
-                            [-105.291398, 30.543204],
-                    ];
-
-        
-
-        firstNode = [
-                        -106.291398,
-                        30.743204
-                    ];
         secondNode = [
                         -105.291398,
                         30.543204
@@ -53,7 +37,6 @@
         map.on('load', event => {
             map.addSource('nodes', {
                 type: 'geojson',
-                // data: test
                 data: {
                     "type": "FeatureCollection",
                     "features": [
@@ -62,7 +45,6 @@
                             "properties": {},
                             "geometry": {
                                 "type": "Point",
-                                // "coordinates": firstNode
                                 "coordinates": everything[0]
                             }
                         },
@@ -81,22 +63,16 @@
 
 
         map.on('click', event => {
-
             if (isThere == true){
-
+                console.log('original');
                 if (happy == 1){
                     map.removeLayer('points');
                     happy = 0;
-                    console.log('aaa happy is 1')
                 }
                 
                 const lng = event.lngLat.lng;
                 const lat = event.lngLat.lat;
-                console.log(happy);
-                draw = 1;
 
-
-                //******************************************************************************
                 //NODES
                 secondNode = [
                                 -105.291398,
@@ -112,7 +88,6 @@
                                 "properties": {},
                                 "geometry": {
                                     "type": "Point",
-                                    // "coordinates": firstNode
                                     "coordinates": everything[0]
                                 }
                             }];
@@ -143,12 +118,10 @@
                         'circle-radius': 10,
                         'circle-color': 'red'
                     }
-
                 });
 
                 isThere = false;
             }else{
-                console.log('biuu');
                 isThere = true;
                 happy = 1;
                 map.removeLayer('points');
@@ -174,7 +147,6 @@
                         ]
                     };
 
-
                 map.getSource('nodes').setData(mydata);
 
                 map.addLayer({
@@ -185,21 +157,9 @@
                         'circle-radius': 10,
                         'circle-color': 'red'
                     }
-
                 });
-
             };
-
-
         });
-
-
-        // isThere = false;
-
-
-        // map.off('click', event => {
-        //     console.log('biuu');
-        // });
 
     </script>
     
