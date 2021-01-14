@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.0.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.0.0/mapbox-gl.css' rel='stylesheet' />
+    
+</head>
+<body>
+    <div id='map' style='width: 1000px; height: 500px;'></div>
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoibmF2Y29nLXZ2ayIsImEiOiJjazVlcWJ5cmcxbThrM21yd28zd3MzcGp0In0.XNc9MK0b_dsLYXyEMscbhg';
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/navcog-vvk/ckjhj2ujt26ty19qixh0lc0hw', // stylesheet location
+            // style: 'mapbox://styles/mapbox/streets-v11',     //default
+            zoom: 7.92,
+            bearing: 0,
+            pitch: 0,
+            center: [-106.291398, 30.743204], // [lng, lat]
+
+        });
+
+        myNodes = [];
+        allNodes = [];
+        nodeNum = 0;
+        myEdges = [];
+        allEdges = [];
+        overlap = 0;
+
+        map.on('load', event => {
+            //Sources for nodes
+            map.addSource('nodes', {
+                type: 'geojson',
+                data: {
+                        "type": "FeatureCollection",
+                        "features": myNodes
+                }
+            });
+
+            //Source for edges
+            mylist = [
+                        [-106.291398, 30.743204],
+                        [-105.291398, 30.543204],
+                    ];
+            map.addSource('connect', {
+                'type': 'geojson',
+                'data': {
+                    'type': 'Feature',
+                    'properties': {},
+                    'geometry': {
+                        'type': 'LineString',
+                        // 'coordinates': mylist
+                        'coordinates': myEdges
+                    }
+                }
+            });
+
+        });
+
+
+        map.on('click', event => {
+            lng = event.lngLat.lng;
+            lat = event.lngLat.lat;
+            nodeNum = nodeNum + 1;
+
+
+            if (allNodes.length > 0){
+                map.removeLayer('points');
+                map.removeLayer('connects');
+
+                allEdges.push([nodeNum, [prevLng, prevLat], [lng, lat]]);
+                prevLng = lng;
+                prevLat = lat;
+
+                overlap = 0;
+                for (i = 0; i < allNodes.length; i++){
+                        lngDiff = allNodes[i][1] - lng;
+                        latDiff = allNodes[i][2] - lat;
+                        diff = Math.sqrt(Math.pow(lngDiff,2) + Math.pow(latDiff,2));
+                        if ( diff < 0.1 ){
+                            console.log('has overlap \n');
+                            overlap = 1;
+                        };
+                };
+
+                if (overlap == 0){
+                    console.log('no overlap \n');
+                    myNodes.push(
+                        {
+                            "type": "Feature",
+                            "properties": {},
+                            "geometry": {
+                                "type": "Point",
+                                "coordinates": [lng, lat]
+                            }
+                        }
+                    );
+
+                    allNodes.push([nodeNum, lng, lat]);
+                };
+    
+
+            }else{
+                myNodes.push(
+                                {
+                                    "type": "Feature",
+                                    "properties": {},
+                                    "geometry": {
+                                        "type": "Point",
+                                        "coordinates": [lng, lat]
+                                    }
+                                }
+                            );
+
+                allNodes.push([nodeNum, lng, lat]);
+                prevLng = lng;
+                prevLat = lat;
+            };
+
+            
+
+            myNodes.push(
+                    {
+                        "type": "Feature",
+                        "properties": {},
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [lng, lat]
+                        }
+                    }
+            );
+
+            allNodes.push([nodeNum, lng, lat]);
+
+            mydata = {
+                "type": "FeatureCollection",
+                "features": myNodes
+            };
+
+
+            map.getSource('nodes').setData(mydata);
+
+            // *************** edges ********************
+            myEdges.push([lng, lat]);
+
+            mydata = {
+                'type': 'Feature',
+                'properties': {},
+                'geometry': {
+                    'type': 'LineString',
+                    'coordinates': myEdges
+                }
+            };
+
+            map.getSource('connect').setData(mydata);
+
+            // *********** add layers ************
+            map.addLayer({
+                'id': 'connects',
+                'type': 'line',
+                'source': 'connect',
+                'layout': {
+                    'line-join': 'round',
+                    'line-cap': 'round'
+                },
+                'paint': {
+                    'line-color': '#3de0f2',
+                    'line-width': 8
+                }
+            });
+
+            map.addLayer({
+                        id: 'points',
+                        source: 'nodes',
+                        type: 'circle',
+                        paint: {
+                            'circle-radius': 10,
+                            'circle-color': '#46278f'
+                        }
+
+            });
+        });
+
+        console.log(allNodes);
+
+
+    </script>
+    
+</body>
+</html>
